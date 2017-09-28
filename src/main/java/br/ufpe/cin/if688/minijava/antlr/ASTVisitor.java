@@ -188,8 +188,12 @@ public class ASTVisitor implements impVisitor<Object>{
 		int eCount = ctx.expression().size();
 		int cCount = ctx.getChildCount();
 		String tokenS = ctx.getStart().getText();
+		
 
 		if (cCount > 4) {
+			String t = ctx.expression(0).getText();
+			String t1 = ctx.expression(1).getText();
+			
 			Exp e = (Exp) ctx.expression(0).accept(this);
 			Identifier aid = (Identifier) ctx.identifier().accept(this);
 
@@ -241,7 +245,10 @@ public class ASTVisitor implements impVisitor<Object>{
 		} else if (tokenS.endsWith("false")) {
 			return new False();
 			
+		} else if (tokenS.matches("\\d+")) {
+			return new IntegerLiteral(Integer.parseInt(ctx.INTEGER_LITERAL().getText()));
 		} else {
+			System.out.println(ctx.getText());
 			return (Identifier) ctx.identifier().accept(this);
 		}
 	}
