@@ -189,8 +189,7 @@ public class ASTVisitor implements impVisitor<Object>{
 
 	@Override
 	public Object visitIdentifier(IdentifierContext ctx) {
-		// TODO Auto-generated method stub
-		return null;
+		return new Identifier(ctx.getText());
 	}
 
 }
