@@ -71,14 +71,14 @@ public class Main {
 		cdl.addElement(B);
 		cdl.addElement(C);
 		
-		InputStream stream = new FileInputStream("src/test/QuickSort.java");
+		/*InputStream stream = new FileInputStream("src/test/QuickSort.java");
 		ANTLRInputStream input = new ANTLRInputStream(stream);
 		impLexer lexer = new impLexer(input);
 		CommonTokenStream token = new CommonTokenStream(lexer);
 		Program p = (Program) new ASTVisitor().visit(new impParser(token).goal());
 		
 		PrettyPrintVisitor ppv = new PrettyPrintVisitor();
-		ppv.visit(p);
+		ppv.visit(p);*/
 	}
 
 }
