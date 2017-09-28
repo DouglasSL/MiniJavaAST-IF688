@@ -97,26 +97,44 @@ public class ASTVisitor implements impVisitor<Object>{
 		Type type = (Type) ctx.type(0).accept(this);
 		Identifier aid0 = (Identifier) ctx.identifier(0).accept(this);
 		FormalList fl = new FormalList();
-		VarDeclList vl = new VarDeclList();
+		VarDeclList vdl = new VarDeclList();
 		StatementList sl = new StatementList();
 		Exp e = (Exp) ctx.expression().accept(this);
 		
 		for (int i = 1; i < ctx.identifier().size(); i++) {
-			
+			fl.addElement(new Formal((Type) ctx.type(i).accept(this), (Identifier) ctx.identifier(i).accept(this)));
 		}
 		
-		return new MethodDecl(null, null, null, null, null, null);
+		for (int i = 0; i < ctx.varDeclaration().size(); i++) {
+			VarDeclarationContext vdc = ctx.varDeclaration().get(i);
+			vdl.addElement((VarDecl) vdc.accept(this));;
+		}
+		
+		for (int i = 0; i < ctx.statement().size(); i++) {
+			StatementContext sc = ctx.statement(i);
+			sl.addElement((Statement) sc.accept(this));
+		}
+		
+		return new MethodDecl(type, aid0, fl, vdl, sl, e);
 	}
 
 	@Override
 	public Object visitType(TypeContext ctx) {
-		// TODO Auto-generated method stub
-		return null;
+		String type = ctx.getText();
+		
+		if (type.equals("int[]")) {
+			return new IntArrayType();			
+		} else if (type.equals("boolean")) {
+			return new BooleanType();
+		} else if (type.equals("int")) {
+			return new IntegerType();
+		} else {
+			return new IdentifierType(type);
+		}
 	}
 
 	@Override
 	public Object visitStatement(StatementContext ctx) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
