@@ -135,12 +135,55 @@ public class ASTVisitor implements impVisitor<Object>{
 
 	@Override
 	public Object visitStatement(StatementContext ctx) {
-		return null;
+		String token = ctx.getStart().getText();
+
+		if (token.equals("{")) {
+			StatementList sl = new StatementList();
+
+			for (int i = 0 ; i < ctx.statement().size(); i++) {
+				StatementContext sc = ctx.statement(i);
+				sl.addElement((Statement) sc.accept(this));
+			}
+			
+			return new Block(sl);
+			
+		} else if (token.equals("if")) {
+			Exp exp = (Exp) ctx.expression(0).accept(this);
+			
+			Statement s1 = (Statement) ctx.statement(0).accept(this);
+			Statement s2 = (Statement) ctx.statement(1).accept(this);
+
+			return new If(exp, s1, s2);
+			
+		} else if (token.equals("while")) {
+			Exp e = (Exp) ctx.expression(0).accept(this);
+			Statement s = (Statement) ctx.statement(0).accept(this);
+
+			return new While(e, s);
+			
+		} else if (token.equals("System.out.println")) {
+			Exp e = (Exp) ctx.expression(0).accept(this);
+
+			return new Print(e);
+			
+		} else if (ctx.expression().size() == 1) {
+			Identifier aid = (Identifier) ctx.identifier().accept(this);
+			Exp e = (Exp) ctx.expression(0).accept(this);
+
+			return new Assign(aid, e);
+			
+		} else {
+			
+			Identifier aid = (Identifier) ctx.identifier().accept(this);
+			Exp e1 = (Exp) ctx.expression(0).accept(this);
+			Exp e2 = (Exp) ctx.expression(1).accept(this);
+
+			return new ArrayAssign(aid, e1, e2);
+		}
 	}
 
 	@Override
 	public Object visitExpression(ExpressionContext ctx) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
