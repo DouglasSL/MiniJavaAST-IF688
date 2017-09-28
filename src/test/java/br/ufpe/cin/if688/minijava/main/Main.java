@@ -1,5 +1,16 @@
 package br.ufpe.cin.if688.minijava.main;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+
+import org.antlr.v4.runtime.ANTLRInputStream;
+import org.antlr.v4.runtime.CommonTokenStream;
+
+import br.ufpe.cin.if688.minijava.antlr.ASTVisitor;
+import br.ufpe.cin.if688.minijava.antlr.impLexer;
+import br.ufpe.cin.if688.minijava.antlr.impParser;
 import br.ufpe.cin.if688.minijava.ast.BooleanType;
 import br.ufpe.cin.if688.minijava.ast.ClassDeclExtends;
 import br.ufpe.cin.if688.minijava.ast.ClassDeclList;
@@ -18,7 +29,7 @@ import br.ufpe.cin.if688.minijava.visitor.PrettyPrintVisitor;
 
 public class Main {
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws IOException {
 		MainClass main = new MainClass(
 				new Identifier("Teste"), 
 				new Identifier("Testando"), 
@@ -59,8 +70,12 @@ public class Main {
 		cdl.addElement(A);
 		cdl.addElement(B);
 		cdl.addElement(C);
-
-		Program p = new Program(main, cdl);
+		
+		InputStream stream = new FileInputStream("src/test/QuickSort.java");
+		ANTLRInputStream input = new ANTLRInputStream(stream);
+		impLexer lexer = new impLexer(input);
+		CommonTokenStream token = new CommonTokenStream(lexer);
+		Program p = (Program) new ASTVisitor().visit(new impParser(token).goal());
 		
 		PrettyPrintVisitor ppv = new PrettyPrintVisitor();
 		ppv.visit(p);

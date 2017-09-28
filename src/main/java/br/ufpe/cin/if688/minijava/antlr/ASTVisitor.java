@@ -43,8 +43,9 @@ public class ASTVisitor implements impVisitor<Object>{
 		MainClass mainClass = (MainClass) ctx.mainClass().accept(this);
 		ClassDeclList classList = new ClassDeclList();
 		
-		for (ClassDeclarationContext classDecl : ctx.classDeclaration()) {
-			classList.addElement((ClassDecl) classDecl.accept(this));
+		for (int i = 0; i < ctx.classDeclaration().size(); i++) {
+			ClassDeclarationContext cdc =  ctx.classDeclaration().get(i);
+			classList.addElement((ClassDecl) cdc.accept(this));
 		}
 		
 		return new Program(mainClass, classList);
@@ -63,11 +64,13 @@ public class ASTVisitor implements impVisitor<Object>{
 		VarDeclList vdl = new VarDeclList();
 		MethodDeclList mdl = new MethodDeclList();
 		
-		for (VarDeclarationContext vdc : ctx.varDeclaration()) {
+		for (int i = 0; i < ctx.varDeclaration().size(); i++) {
+			VarDeclarationContext vdc = ctx.varDeclaration().get(i);
 			vdl.addElement((VarDecl) vdc.accept(this));
 		}
 		
-		for (MethodDeclarationContext mdc : ctx.methodDeclaration()) {
+		for (int i = 0; i < ctx.methodDeclaration().size(); i++) {
+			MethodDeclarationContext mdc = ctx.methodDeclaration().get(i);
 			mdl.addElement((MethodDecl) mdc.accept(this));
 		}
 		
@@ -149,7 +152,6 @@ public class ASTVisitor implements impVisitor<Object>{
 			
 		} else if (token.equals("if")) {
 			Exp exp = (Exp) ctx.expression(0).accept(this);
-			
 			Statement s1 = (Statement) ctx.statement(0).accept(this);
 			Statement s2 = (Statement) ctx.statement(1).accept(this);
 
@@ -173,7 +175,6 @@ public class ASTVisitor implements impVisitor<Object>{
 			return new Assign(aid, e);
 			
 		} else {
-			
 			Identifier aid = (Identifier) ctx.identifier().accept(this);
 			Exp e1 = (Exp) ctx.expression(0).accept(this);
 			Exp e2 = (Exp) ctx.expression(1).accept(this);
@@ -184,7 +185,65 @@ public class ASTVisitor implements impVisitor<Object>{
 
 	@Override
 	public Object visitExpression(ExpressionContext ctx) {
-		return null;
+		int eCount = ctx.expression().size();
+		int cCount = ctx.getChildCount();
+		String tokenS = ctx.getStart().getText();
+
+		if (cCount > 4) {
+			Exp e = (Exp) ctx.expression(0).accept(this);
+			Identifier aid = (Identifier) ctx.identifier().accept(this);
+
+			ExpList el = new ExpList();
+			for (int i = 1; i < ctx.expression().size(); i++) {
+				el.addElement((Exp) ctx.expression(i).accept(this));
+			}
+
+			return new Call(e, aid, el);
+		}
+
+		if (eCount == 2) {
+			Exp e1 = (Exp) ctx.expression(0).accept(this);
+			Exp e2 = (Exp) ctx.expression(1).accept(this);
+
+			String operator = ctx.getChild(1).getText();
+
+			if (cCount == 3) {
+				switch (operator) {
+				case "&&": return new And(e1, e2);
+				case "<": return new LessThan(e1, e2);
+				case "+": return new Plus(e1, e2);
+				case "-": return new Minus(e1, e2);
+				default: return new Times(e1, e2); 
+				}
+				
+			} else {
+				return new ArrayLookup(e1, e2);
+			}
+		} else if (eCount == 1) {
+			Exp e = (Exp) ctx.expression(0).accept(this);
+
+			switch (tokenS) {
+			case "!": return new Not(e);
+			case "(": return (Exp) ctx.expression(0).accept(this);
+			case "new": return new NewArray(e);
+			default: return new ArrayLength(e);
+			}
+			
+		} else if (tokenS.equals("new")) {
+			return new NewObject((Identifier) ctx.identifier().accept(this));
+			
+		} else if (tokenS.equals("this")) {
+			return new This();
+			
+		} else if (tokenS.endsWith("true")) {
+			return new True();
+			
+		} else if (tokenS.endsWith("false")) {
+			return new False();
+			
+		} else {
+			return (Identifier) ctx.identifier().accept(this);
+		}
 	}
 
 	@Override
