@@ -2,10 +2,10 @@ package br.ufpe.cin.if688.minijava.ast;
 
 import br.ufpe.cin.if688.minijava.visitor.IVisitor;
 
-public class Identifier {
+public class Identifier extends Exp{
 	public String s;
 
-	public Identifier(String as) {
+	public Identifier(String as){
 		s = as;
 	}
 
