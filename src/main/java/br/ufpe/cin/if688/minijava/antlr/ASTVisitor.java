@@ -102,7 +102,7 @@ public class ASTVisitor implements impVisitor<Object>{
 		FormalList fl = new FormalList();
 		VarDeclList vdl = new VarDeclList();
 		StatementList sl = new StatementList();
-		Exp e = (Exp) ctx.expression().accept(this);
+		Exp e = null;
 		
 		for (int i = 1; i < ctx.identifier().size(); i++) {
 			fl.addElement(new Formal((Type) ctx.type(i).accept(this), (Identifier) ctx.identifier(i).accept(this)));
@@ -116,6 +116,14 @@ public class ASTVisitor implements impVisitor<Object>{
 		for (int i = 0; i < ctx.statement().size(); i++) {
 			StatementContext sc = ctx.statement(i);
 			sl.addElement((Statement) sc.accept(this));
+		}
+		
+		Object auxExp = ctx.expression().accept(this);
+		
+		if (auxExp instanceof Exp){
+			e = (Exp) auxExp;
+		} else {
+			e =  new IdentifierExp(ctx.expression().getText());
 		}
 		
 		return new MethodDecl(type, aid0, fl, vdl, sl, e);
@@ -151,33 +159,68 @@ public class ASTVisitor implements impVisitor<Object>{
 			return new Block(sl);
 			
 		} else if (token.equals("if")) {
-			Exp exp = (Exp) ctx.expression().get(0).accept(this);
+			Object auxExp = ctx.expression(0).accept(this);
+			Exp e = null;
+			if (auxExp instanceof Exp){
+				e = (Exp) auxExp;
+			} else {
+				e =  new IdentifierExp(ctx.expression(0).getText());
+			}
 			Statement s1 = (Statement) ctx.statement().get(0).accept(this);
 			Statement s2 = (Statement) ctx.statement().get(1).accept(this);
 
-			return new If(exp, s1, s2);
+			return new If(e, s1, s2);
 			
 		} else if (token.equals("while")) {
-			Exp e = (Exp) ctx.expression().get(0).accept(this);
+			Object auxExp = ctx.expression(0).accept(this);
+			Exp e = null;
+			if (auxExp instanceof Exp){
+				e = (Exp) auxExp;
+			} else {
+				e =  new IdentifierExp(ctx.expression(0).getText());
+			}
 			Statement s = (Statement) ctx.statement().get(0).accept(this);
 
 			return new While(e, s);
 			
 		} else if (token.equals("System.out.println")) {
-			Exp e = (Exp) ctx.expression().get(0).accept(this);
+			Object auxExp = ctx.expression(0).accept(this);
+			Exp e = null;
+			if (auxExp instanceof Exp){
+				e = (Exp) auxExp;
+			} else {
+				e =  new IdentifierExp(ctx.expression(0).getText());
+			}
 
 			return new Print(e);
 			
 		} else if (ctx.expression().size() == 1) {
 			Identifier aid = (Identifier) ctx.identifier().accept(this);
-			Exp e = (Exp) ctx.expression().get(0).accept(this);
-
+			Object auxExp = ctx.expression(0).accept(this);
+			Exp e = null;
+			if (auxExp instanceof Exp){
+				e = (Exp) auxExp;
+			} else {
+				e =  new IdentifierExp(ctx.expression(0).getText());
+			}
 			return new Assign(aid, e);
 			
 		} else {
 			Identifier aid = (Identifier) ctx.identifier().accept(this);
-			Exp e1 = (Exp) ctx.expression().get(0).accept(this);
-			Exp e2 = (Exp) ctx.expression().get(1).accept(this);
+			Object auxExp = ctx.expression(0).accept(this);
+			Exp e1 = null;
+			if (auxExp instanceof Exp){
+				e1 = (Exp) auxExp;
+			} else {
+				e1 =  new IdentifierExp(ctx.expression(0).getText());
+			}
+			Object auxExp1 = ctx.expression(1).accept(this);
+			Exp e2 = null;
+			if (auxExp1 instanceof Exp){
+				e2 = (Exp) auxExp1;
+			} else {
+				e2 =  new IdentifierExp(ctx.expression(1).getText());
+			}
 
 			return new ArrayAssign(aid, e1, e2);
 		}
@@ -190,21 +233,50 @@ public class ASTVisitor implements impVisitor<Object>{
 		String tokenS = ctx.getStart().getText();
 
 		if (cCount > 4 && ctx.getChild(1).getText().equals(".")) {
-			Exp e = (Exp) ctx.expression(0).accept(this);
+			Object auxExp = ctx.expression(0).accept(this);
+			Exp e = null;
+			if (auxExp instanceof Exp){
+				e = (Exp) auxExp;
+			} else {
+				e =  new IdentifierExp(ctx.expression(0).getText());
+			}
 			Identifier aid = (Identifier) ctx.identifier().accept(this);
 
 			ExpList el = new ExpList();
+			Exp e1 = null;
+			Object auxExp1 = null;
 			for (int i = 1; i < ctx.expression().size(); i++) {
-				el.addElement((Exp) ctx.expression().get(i).accept(this));
+				ExpressionContext ec = ctx.expression(i);
+				
+				auxExp1 = ec.accept(this);
+				
+				if (auxExp1 instanceof Exp){
+					e1 = (Exp) auxExp1;
+				} else {
+					e1 =  new IdentifierExp(ctx.expression(i).getText());
+				}
+				
+				el.addElement(e1);
 			}
 
 			return new Call(e, aid, el);
 		}
 
 		if (eCount == 2) {
-			Exp e1 = (Exp) ctx.expression().get(0).accept(this);
-			Exp e2 = (Exp) ctx.expression().get(1).accept(this);
-
+			Object auxExp = ctx.expression(0).accept(this);
+			Exp e1 = null;
+			if (auxExp instanceof Exp){
+				e1 = (Exp) auxExp;
+			} else {
+				e1 =  new IdentifierExp(ctx.expression(0).getText());
+			}
+			Object auxExp1 = ctx.expression(1).accept(this);
+			Exp e2 = null;
+			if (auxExp1 instanceof Exp){
+				e2 = (Exp) auxExp1;
+			} else {
+				e2 =  new IdentifierExp(ctx.expression(1).getText());
+			}
 			String operator = ctx.getChild(1).getText();
 
 			if (cCount == 3) {
@@ -220,11 +292,17 @@ public class ASTVisitor implements impVisitor<Object>{
 				return new ArrayLookup(e1, e2);
 			}
 		} else if (eCount == 1) {
-			Exp e = (Exp) ctx.expression().get(0).accept(this);
+			Object auxExp = ctx.expression(0).accept(this);
+			Exp e = null;
+			if (auxExp instanceof Exp){
+				e = (Exp) auxExp;
+			} else {
+				e =  new IdentifierExp(ctx.expression(0).getText());
+			}
 
 			switch (tokenS) {
 			case "!": return new Not(e);
-			case "(": return (Exp) ctx.expression().get(0).accept(this);
+			case "(": return e;
 			case "new": return new NewArray(e);
 			default: return new ArrayLength(e);
 			}
