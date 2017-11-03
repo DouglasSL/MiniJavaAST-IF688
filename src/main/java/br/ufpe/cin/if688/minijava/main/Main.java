@@ -25,7 +25,9 @@ import br.ufpe.cin.if688.minijava.ast.Print;
 import br.ufpe.cin.if688.minijava.ast.Program;
 import br.ufpe.cin.if688.minijava.ast.VarDecl;
 import br.ufpe.cin.if688.minijava.ast.VarDeclList;
+import br.ufpe.cin.if688.minijava.visitor.BuildSymbolTableVisitor;
 import br.ufpe.cin.if688.minijava.visitor.PrettyPrintVisitor;
+import br.ufpe.cin.if688.minijava.visitor.TypeCheckVisitor;
 
 public class Main {
 
@@ -78,7 +80,12 @@ public class Main {
 		Program p = (Program) new ASTVisitor().visit(new impParser(token).goal());
 		
 		PrettyPrintVisitor ppv = new PrettyPrintVisitor();
-		ppv.visit(p);
+		
+		BuildSymbolTableVisitor symbolTable = new BuildSymbolTableVisitor();
+		p.accept(symbolTable);
+		TypeCheckVisitor typeCheck = new TypeCheckVisitor(symbolTable.getSymbolTable());
+		p.accept(typeCheck);
+		//ppv.visit(p);
 	}
 
 }

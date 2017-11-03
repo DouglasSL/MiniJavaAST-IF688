@@ -60,7 +60,7 @@ class QS{
 		}
 
 
-		t = number[i] ;
+		t = number[t] ;
 		number[i] = number[j] ;
 		number[j] = t ;
 		//aux03 = i + 1 ;
