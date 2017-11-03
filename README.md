@@ -1,4 +1,4 @@
-# Exercício 4 - Compiladores
+# MiniJavaAST - Compiladores (IF688)
 
 ## Contribuidores:
 
